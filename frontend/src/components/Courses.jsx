@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -209,9 +208,7 @@ export default function Courses() {
                       </p>
                     </div>
                     <ul className="space-y-3 mb-3 grow">
-                      {course.description
-                        .replace(/<\/?(p|strong)>/g, "")
-                        .trim()
+                      {cleanCourseDescription(course.description)
                         .split(".")
                         .filter((sum) => sum.trim() !== "")
                         .map((sum) => (
