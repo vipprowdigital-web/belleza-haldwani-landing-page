@@ -1,10 +1,12 @@
 import "./App.css";
+import { useState, useEffect } from "react";
 import About from "./components/About";
 import HeroSection from "./components/HeroSection";
 import LeadForm from "./components/LeadForm";
 import { motion } from "framer-motion";
 import { MapPin, Phone } from "lucide-react";
 import WhyChooseUs from "./components/WhyChooseUs";
+import { baseUrl, subDomain } from "./utils/baseUrl";
 
 import TrainingTimeline from "./components/TrainingTimeline";
 import WhatYouGet from "./components/WhatYouGet";
@@ -18,12 +20,60 @@ import FinalCTA from "./components/FinalCTA";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import Courses from "./components/Courses";
+import Gallery from "./components/Gallery";
 
 function App() {
+  const [appConfig, setAppConfig] = useState(null);
+  const [gallery, setGallery] = useState([]);
+
+  useEffect(() => {
+    const fetchAppConfig = async () => {
+      try {
+        const response = await fetch(`${baseUrl}/app-config/frontend?subdomain=${subDomain}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setAppConfig(data.data);
+        } else {
+          console.error("Couldn't fetch app config.");
+        }
+      } catch {
+        console.error("Error while fetching app config.");
+      }
+    };
+    fetchAppConfig();
+  }, []);
+
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      try {
+        const response = await fetch(`${baseUrl}/gallery/frontend?subdomain=${subDomain}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setGallery(data.data);
+        } else {
+          console.error("Couldn't fetch gallery images.");
+        }
+      } catch {
+        console.error("Error while fetching gallery images.");
+      }
+    };
+    fetchGalleryImages();
+  }, []);
+
   return (
     <div className="flex flex-col justify-center items-center bg-light">
       <HeroSection />
-      <LeadForm />
+      <LeadForm
+        address={appConfig?.addresses}
+        phone={appConfig?.phone}
+        email={appConfig?.email}
+      />
       <Courses />
 
       <TrainingTimeline />
@@ -33,12 +83,13 @@ function App() {
       <WhatYouGet />
       <PortfolioSection />
       <CareerOpportunities />
+      <Gallery gallery={gallery} />
       <EligibilitySection />
       <AdmissionsCTA />
       <StudentExperience />
       <FAQs />
       <FinalCTA />
-      <Footer />
+      <Footer appConfig={appConfig} />
       <Navbar />
       <div className="flex flex-col fixed bottom-5 left-5">
         <motion.div
@@ -72,7 +123,9 @@ function App() {
               }}
               transition={{ duration: 0.3 }}
             >
-              +91 96909 20088
+              {appConfig?.phone
+                ? `+91 ${appConfig.phone}`
+                : "+91 96909 20088"}
             </motion.span>
           </motion.div>
 
@@ -100,7 +153,7 @@ function App() {
               }}
               transition={{ duration: 0.3 }}
             >
-              Near Fountain Chowk, Nehru Colony, Dehradun, Uttarakhand
+              {appConfig?.addresses?.[0]?.address ?? "Near Fountain Chowk, Nehru Colony, Dehradun, Uttarakhand"}
             </motion.span>
           </motion.div>
         </motion.div>

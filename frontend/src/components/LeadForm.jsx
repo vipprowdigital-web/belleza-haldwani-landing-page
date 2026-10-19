@@ -1,68 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pin, Phone, Link } from "lucide-react";
-import { baseUrl } from "../utils/baseUrl";
-
-// ─── Course Data ─────────────────────────────────────────────
-const courses = [
-  { id: 1, name: "Master in Cosmetology", category: "combo" },
-  { id: 2, name: "Diploma in Cosmetology", category: "combo" },
-  { id: 3, name: "Certificate in Cosmetology", category: "combo" },
-  { id: 4, name: "Certificate in Self Grooming", category: "makeup" },
-  {
-    id: 5,
-    name: "Certificate in International Makeup Artistry",
-    category: "makeup",
-  },
-  {
-    id: 6,
-    name: "Certificate in Professional Makeup Artistry",
-    category: "makeup",
-  },
-  { id: 7, name: "Certificate in Makeup Artistry", category: "makeup" },
-  {
-    id: 8,
-    name: "Certificate in International Nail Artistry",
-    category: "nails",
-  },
-  {
-    id: 9,
-    name: "Certificate in Professional Nail Artistry",
-    category: "nails",
-  },
-  { id: 10, name: "Certificate in Nail Artistry", category: "nails" },
-  { id: 11, name: "Certificate in Permanent Hair Extension", category: "hair" },
-  { id: 12, name: "Certificate in Barbering", category: "hair" },
-  {
-    id: 13,
-    name: "Certificate in International Hair Styling",
-    category: "hair",
-  },
-  { id: 14, name: "Certificate in Hair Styling", category: "hair" },
-  {
-    id: 15,
-    name: "Certificate in Professional Hair Craftsmanship",
-    category: "hair",
-  },
-  { id: 16, name: "Certificate in Hair Craftsmanship", category: "hair" },
-  { id: 17, name: "Certificate in Eye Lashes Extension", category: "beauty" },
-  { id: 18, name: "Certificate in Aesthetician", category: "beauty" },
-  { id: 19, name: "Certificate in Beauty Therapist", category: "beauty" },
-  { id: 20, name: "Certificate in Skincare", category: "beauty" },
-];
-
-const categoryLabel = {
-  combo: "Combo & Cosmetology",
-  makeup: "Makeup",
-  nails: "Nail Artistry",
-  hair: "Hair",
-  beauty: "Beauty & Skin",
-};
-
-const groupedCourses = Object.entries(categoryLabel).map(([key, label]) => ({
-  label,
-  options: courses.filter((course) => course.category === key),
-}));
+import { baseUrl, subDomain } from "../utils/baseUrl";
 
 const locations = [
   { value: "haldwani", label: "Haldwani" },
@@ -81,9 +20,10 @@ const features = [
 const initialData = {
   name: "",
   phone: "",
-  courseName: "",
+  course: "",
   preferredLocation: "",
   message: "",
+  subdomain: "",
 };
 
 // ─── Validation ─────────────────────────────────────────────
@@ -102,8 +42,8 @@ const validate = (data) => {
     errors.phone = "Enter a valid phone number";
   }
 
-  if (!data.courseName) {
-    errors.courseName = "Please select a course";
+  if (!data.course) {
+    errors.course = "Please select a course";
   }
 
   if (!data.preferredLocation) {
@@ -116,9 +56,8 @@ const validate = (data) => {
 // ─── Reusable Components ────────────────────────────────────
 const FieldLabel = ({ label, error }) => (
   <label
-    className={`text-xs font-semibold tracking-widest uppercase ${
-      error ? "text-red-700" : "text-secondary"
-    }`}
+    className={`text-xs font-semibold tracking-widest uppercase ${error ? "text-red-700" : "text-secondary"
+      }`}
   >
     {label}
   </label>
@@ -165,11 +104,28 @@ const itemVariants = {
 
 // ─── Main Component ─────────────────────────────────────────
 const LeadForm = ({ address, phone }) => {
-  const API_URL = import.meta.env.VITE_API_URL;
-
   const [formData, setFormData] = useState(initialData);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle");
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    (async () => {
+      try {
+        const res = await fetch(`${baseUrl}/course/public/name`, {
+          signal: controller.signal,
+        });
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        const json = await res.json();
+        setCourses(json.data || []);
+      } catch (err) {
+        if (err.name !== "AbortError")
+          console.error("Failed to load courses:", err);
+      }
+    })();
+    return () => controller.abort();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -217,7 +173,7 @@ const LeadForm = ({ address, phone }) => {
     setStatus("loading");
 
     try {
-      const response = await fetch(`${API_URL}/contact`, {
+      const response = await fetch(`${baseUrl}/contact/frontend`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -225,9 +181,10 @@ const LeadForm = ({ address, phone }) => {
         body: JSON.stringify({
           name: formData.name,
           phone: formData.phone,
-          courseName: formData.courseName,
+          course: formData.course,
           preferredLocation: formData.preferredLocation,
           message: formData.message || "No message added",
+          subdomain: subDomain,
         }),
       });
 
@@ -439,34 +396,29 @@ const LeadForm = ({ address, phone }) => {
                 >
                   <FieldLabel
                     label="Interested Course"
-                    error={errors.courseName}
+                    error={errors.course}
                   />
 
                   <div className="relative">
                     <select
-                      name="courseName"
-                      value={formData.courseName}
+                      name="course"
+                      value={formData.course}
                       onChange={handleChange}
                       className={`${inputCls(
-                        !!errors.courseName
-                      )} cursor-pointer appearance-none pr-10 ${
-                        !formData.courseName
-                          ? "text-secondary"
-                          : "text-primary"
-                      }`}
+                        !!errors.course
+                      )} cursor-pointer appearance-none pr-10 ${!formData.course
+                        ? "text-secondary"
+                        : "text-primary"
+                        }`}
                     >
                       <option value="" disabled>
                         Select a Course
                       </option>
 
-                      {groupedCourses.map(({ label, options }) => (
-                        <optgroup key={label} label={label}>
-                          {options.map((course) => (
-                            <option key={course.id} value={course.name}>
-                              {course.name}
-                            </option>
-                          ))}
-                        </optgroup>
+                      {courses.map((c) => (
+                        <option key={c._id} value={c._id}>
+                          {c.title}
+                        </option>
                       ))}
                     </select>
 
@@ -475,7 +427,7 @@ const LeadForm = ({ address, phone }) => {
                     </span>
                   </div>
 
-                  <ErrorMsg error={errors.courseName} />
+                  <ErrorMsg error={errors.course} />
                 </motion.div>
 
                 {/* Location */}
@@ -495,11 +447,10 @@ const LeadForm = ({ address, phone }) => {
                       onChange={handleChange}
                       className={`${inputCls(
                         !!errors.preferredLocation
-                      )} cursor-pointer appearance-none pr-10 ${
-                        !formData.preferredLocation
-                          ? "text-secondary"
-                          : "text-primary"
-                      }`}
+                      )} cursor-pointer appearance-none pr-10 ${!formData.preferredLocation
+                        ? "text-secondary"
+                        : "text-primary"
+                        }`}
                     >
                       <option value="" disabled>
                         Select Location
@@ -558,11 +509,10 @@ const LeadForm = ({ address, phone }) => {
                     disabled={status === "loading"}
                     whileHover={status !== "loading" ? { scale: 1.02 } : {}}
                     whileTap={status !== "loading" ? { scale: 0.97 } : {}}
-                    className={`w-full rounded-xl py-3 text-md font-semibold tracking-wide text-light transition-all duration-200 ${
-                      status === "loading"
-                        ? "cursor-not-allowed bg-secondary"
-                        : "cursor-pointer bg-primary hover:bg-secondary hover:shadow-xl hover:shadow-primary/20"
-                    }`}
+                    className={`w-full rounded-xl py-3 text-md font-semibold tracking-wide text-light transition-all duration-200 ${status === "loading"
+                      ? "cursor-not-allowed bg-secondary"
+                      : "cursor-pointer bg-primary hover:bg-secondary hover:shadow-xl hover:shadow-primary/20"
+                      }`}
                   >
                     {status === "loading" ? (
                       <span className="flex items-center justify-center gap-2.5">
