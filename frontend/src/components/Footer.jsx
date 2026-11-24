@@ -60,26 +60,12 @@ const Footer = ({ appConfig }) => {
   const email = appConfig?.email ?? null;
   const website = appConfig?.website ?? "https://bellezaschool.com";
 
-  // Social links — try both a top-level socialLinks array and direct fields
-  const instagram =
-    appConfig?.socialLinks?.find(
-      (s) => s.platform?.toLowerCase() === "instagram",
-    )?.url ??
-    appConfig?.instagram ??
-    "https://www.instagram.com/bellezahaldwani/";
-
-  const facebook =
-    appConfig?.socialLinks?.find(
-      (s) => s.platform?.toLowerCase() === "facebook",
-    )?.url ??
-    appConfig?.facebook ??
-    "https://www.facebook.com/profile.php?id=61585253259706";
-
-  const googleBusiness =
-    appConfig?.socialLinks?.find((s) => s.platform?.toLowerCase() === "google")
-      ?.url ??
-    appConfig?.googleBusiness ??
-    "https://share.google/mVfpiaBuyJG5zEZC3";
+  // Social links - only rendered when the backend returns a non-empty URL
+  const clean = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
+  const instagram = clean(appConfig?.instagramLink);
+  const facebook = clean(appConfig?.facebookLink);
+  // The backend has no Google Business field yet; stays hidden until one exists
+  const googleBusiness = clean(appConfig?.googleBusinessLink);
 
   return (
     <footer className="w-full bg-primary text-light pt-16 pb-8 px-6">
@@ -103,38 +89,46 @@ const Footer = ({ appConfig }) => {
               Cosmetology Courses
             </p>
 
-            {/* Social Icons */}
+            {/* Social Icons - only rendered when a link exists */}
+            {(instagram || facebook || googleBusiness) && (
             <div className="flex items-center gap-3 pt-2">
-              <a
-                href={instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-                className={socialIconCls}
-              >
-                <InstagramIcon className="w-5 h-5" />
-              </a>
+              {instagram && (
+                <a
+                  href={instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className={socialIconCls}
+                >
+                  <InstagramIcon className="w-5 h-5" />
+                </a>
+              )}
 
-              <a
-                href={facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook"
-                className={socialIconCls}
-              >
-                <FacebookIcon className="w-5 h-5" />
-              </a>
+              {facebook && (
+                <a
+                  href={facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className={socialIconCls}
+                >
+                  <FacebookIcon className="w-5 h-5" />
+                </a>
+              )}
 
-              <a
-                href={googleBusiness}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Google Business Profile"
-                className={socialIconCls}
-              >
-                <GoogleBusinessIcon className="w-5 h-5" />
-              </a>
+              {googleBusiness && (
+                <a
+                  href={googleBusiness}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Google Business Profile"
+                  className={socialIconCls}
+                >
+                  <GoogleBusinessIcon className="w-5 h-5" />
+                </a>
+              )}
             </div>
+            )}
           </div>
 
           {/* Quick Links */}
