@@ -530,7 +530,16 @@ const LeadForm = ({ address, phone }) => {
                   className="-mt-1 text-center text-xs leading-relaxed text-secondary"
                 >
                   By submitting, you agree to be contacted by a Belleza
-                  counsellor. No spam, ever.
+                  counsellor. No spam, ever. Read our{" "}
+                  <a
+                    href="/privacy-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    Privacy Policy
+                  </a>
+                  .
                 </motion.p>
               </motion.form>
             )}

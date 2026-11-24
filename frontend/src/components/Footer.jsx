@@ -53,7 +53,8 @@ const Footer = ({ appConfig }) => {
   const currentYear = new Date().getFullYear();
 
   // ── Pull values from appConfig with fallbacks ──────────────
-  const address = appConfig?.addresses?.[0]?.address ??
+  const address =
+    appConfig?.addresses?.[0]?.address ??
     "Haldwani, Uttarakhand Near Degree College, Bhotia Parao, Haldwani";
   const phone = appConfig?.phone ?? "96909 20088";
   const email = appConfig?.email ?? null;
@@ -61,17 +62,22 @@ const Footer = ({ appConfig }) => {
 
   // Social links — try both a top-level socialLinks array and direct fields
   const instagram =
-    appConfig?.socialLinks?.find((s) => s.platform?.toLowerCase() === "instagram")?.url ??
+    appConfig?.socialLinks?.find(
+      (s) => s.platform?.toLowerCase() === "instagram",
+    )?.url ??
     appConfig?.instagram ??
     "https://www.instagram.com/bellezahaldwani/";
 
   const facebook =
-    appConfig?.socialLinks?.find((s) => s.platform?.toLowerCase() === "facebook")?.url ??
+    appConfig?.socialLinks?.find(
+      (s) => s.platform?.toLowerCase() === "facebook",
+    )?.url ??
     appConfig?.facebook ??
     "https://www.facebook.com/profile.php?id=61585253259706";
 
   const googleBusiness =
-    appConfig?.socialLinks?.find((s) => s.platform?.toLowerCase() === "google")?.url ??
+    appConfig?.socialLinks?.find((s) => s.platform?.toLowerCase() === "google")
+      ?.url ??
     appConfig?.googleBusiness ??
     "https://share.google/mVfpiaBuyJG5zEZC3";
 
@@ -93,7 +99,8 @@ const Footer = ({ appConfig }) => {
             </div>
 
             <p className="text-light text-sm leading-relaxed max-w-xs">
-              Premium Beauty Academy for Makeup, Hair, Nail, Skin &amp; Cosmetology Courses
+              Premium Beauty Academy for Makeup, Hair, Nail, Skin &amp;
+              Cosmetology Courses
             </p>
 
             {/* Social Icons */}
@@ -257,10 +264,18 @@ const Footer = ({ appConfig }) => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-light/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] uppercase tracking-[0.2em] text-light/40 font-bold">
-          <p>© {currentYear} Belleza Beauty School. All Rights Reserved.</p>
+        <div className="pt-8 border-t border-light/10  flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] text-center sm:text-left uppercase tracking-[0.2em] text-light/40 font-bold">
+          <p>
+            &copy; {currentYear} Belleza Beauty School. All Rights Reserved.
+          </p>
 
           <div className="flex gap-8">
+            <a
+              href="/privacy-policy"
+              className="hover:text-accent cursor-pointer"
+            >
+              Privacy Policy
+            </a>
             <a
               href="https://vipprow.com"
               target="_blank"
@@ -277,7 +292,6 @@ const Footer = ({ appConfig }) => {
 };
 
 export default Footer;
-
 
 const InstagramIcon = ({ className = "" }) => {
   return (

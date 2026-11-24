@@ -25,6 +25,18 @@ import Gallery from "./components/Gallery";
 function App() {
   const [appConfig, setAppConfig] = useState(null);
   const [gallery, setGallery] = useState([]);
+  const [footerVisible, setFooterVisible] = useState(false);
+
+  useEffect(() => {
+    const footer = document.querySelector("footer");
+    if (!footer) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setFooterVisible(entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const fetchAppConfig = async () => {
@@ -91,7 +103,11 @@ function App() {
       <FinalCTA />
       <Footer appConfig={appConfig} />
       <Navbar />
-      <div className="flex flex-col fixed bottom-5 left-5">
+      <div
+        className={`flex flex-col fixed bottom-5 left-5 transition-opacity duration-300 ${
+          footerVisible ? "opacity-0 pointer-events-none" : "opacity-100"
+        }`}
+      >
         <motion.div
           className="flex flex-col items-start mt-6 gap-3"
           initial={{ opacity: 0, y: 20 }}
